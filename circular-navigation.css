@@ -1,0 +1,811 @@
+/* ==========================================================================
+   Variables
+   ========================================================================== */
+:root {
+    /* Base Colors */
+    --primary-color: #1c6082;         /* Main theme color (steel blue) o*/
+    --primary-light: #A0C7E7;         /* Lighter shade of primary */
+    --primary-lighter: #D1D5DB;       /* Even lighter shade */
+    --primary-dark: #2C5282;          /* Darker shade of primary */
+    
+    /* Node Colors */
+    --node-bg-default: white;
+    --node-bg-hover: var(--primary-color);
+    --node-bg-active: var(--primary-color);
+    --node-bg-sibling: white;
+    --node-bg-central: #6C9CB2;
+    
+    /* Text Colors */
+    --text-default: var(--primary-dark);
+    --text-hover: white;
+    --text-active: white;
+    --text-sibling: #9CA3AF;
+    
+    /* Border Colors */
+    --border-default: #A0C7E7;        /* Default node border */
+    --border-hover: var(--primary-lighter);
+    --border-active: var(--primary-color);
+    --border-sibling: var(--primary-lighter);
+    
+    /* Link Colors */
+    --link-default: var(--primary-color);
+    --link-active: #1c6082;           /* Dark blue for active links */
+    --link-inactive: #D1D5DB;         /* Light color for inactive links */
+    
+    /* Sizes */
+    --border-width: 1px;
+    --link-width: 1.5px;
+    --link-width-active: 2px;
+}
+
+/* ==========================================================================
+   Container Styles
+   ========================================================================== */
+.circular-navigation-container {
+    width: 100%;
+    height: 100%;
+    min-height: 600px;
+}
+
+#circular-nav-svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* ==========================================================================
+   Link Styles
+   ========================================================================== */
+.link {
+    fill: none;
+    stroke: var(--link-default);
+    stroke-width: var(--link-width);
+    transition: opacity 0.3s;
+}
+
+.link.background {
+    stroke: var(--link-inactive);
+}
+
+.link.foreground {
+    stroke: var(--link-default);
+    stroke-width: var(--link-width-active);
+}
+
+.link.sibling {
+    stroke-dasharray: 5, 5;
+}
+
+/* ==========================================================================
+   Node Styles
+   ========================================================================== */
+.node {
+    cursor: pointer;
+    border: none !important;
+}
+
+.node-content {
+    width: fit-content;
+    height: 100%;
+    margin: 0 auto;
+    min-height: 50px;
+    max-height: fit-content;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 5px;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    background-color: var(--node-bg-default);
+    color: var(--text-default);
+    border: var(--border-width) dashed var(--border-default);
+    border-radius: 8px;
+}
+
+.node:hover .node-content {
+    background-color: var(--node-bg-hover);
+    border: var(--border-width) solid var(--border-hover);
+    color: var(--text-hover);
+}
+
+.node.active .node-content {
+    background-color: var(--node-bg-active);
+    border: var(--border-width) solid var(--border-active);
+    color: var(--text-active);
+}
+
+.node.sibling-selected .node-content {
+    background-color: var(--node-bg-sibling);
+    border: var(--border-width) dashed var(--border-sibling);
+    color: var(--text-sibling);
+}
+
+/* Central Node Specific Styles */
+.central-node .node-content {
+    font-weight: bold;
+    background-color: var(--node-bg-central) !important;
+    color: var(--text-hover);
+    border: none !important;
+}
+
+.node:hover .node-content.central, 
+.node.active .node-content.central {
+    background-color: var(--node-bg-central) !important;
+    color: var(--text-hover);
+    border: none !important;
+}
+
+.node.depth-0-node .node-content {
+    width: 150px;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* ==========================================================================
+   Outer Elements Styles
+   ========================================================================== */
+/* Outer Text Container */
+.outer-text-container {
+    overflow:visible;
+    transition: transform 0.3s ease;
+    transform-origin: center;
+}
+
+.outer-text {
+    background-color: transparent;
+    color: var(--text-default);
+    font-size: 12px;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+    border: none;
+}
+
+/* Hover effect - scale up */
+.outer-text:hover {
+    transform: scale(1.1);
+}
+
+/* Active state - bold and blue */
+.outer-text.active {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.outer-text.faded {
+    opacity: 0.5;
+}
+
+/* Two-line text handling */
+.outer-text .line-clamp-1 {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1;
+    min-height: 14px;
+}
+
+.outer-text .line-clamp-1:first-child {
+    margin-bottom: 2px;
+}
+
+/* ==========================================================================
+   Indicator Styles
+   ========================================================================== */
+/* Indicator Group */
+.indicator-group {
+    transition: transform 0.3s ease;
+}
+
+/* Main Indicator */
+.outer-indicator {
+    fill: var(--link-inactive);
+    transition: fill 0.3s ease;
+    cursor: pointer;
+    r: 3.5; /* Smaller base size */
+}
+
+.outer-indicator:hover {
+    fill: var(--link-default);
+}
+
+.outer-indicator.active {
+    fill: var(--link-active);
+}
+
+/* Pulsing animation for active indicators */
+.outer-indicator.pulse {
+    animation: subtle-pulse 2s ease-in-out infinite;
+}
+
+/* Remove old rotating outline styles since we're using a different approach */
+.indicator-outline {
+    display: none;
+}
+
+/* ==========================================================================
+   Animation Keyframes
+   ========================================================================== */
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes spin {
+    0% { 
+        transform: rotate(0deg); 
+    }
+    100% { 
+        transform: rotate(360deg); 
+    }
+}
+
+@keyframes subtle-pulse {
+    0% {
+        r: 3.5;
+        fill-opacity: 1;
+    }
+    50% {
+        r: 6.5;
+        fill-opacity: 1;
+    }
+    100% {
+        r: 3.5;
+        fill-opacity: 1;
+    }
+}
+
+/* ==========================================================================
+   Focus States
+   ========================================================================== */
+.node:focus,
+.outer-indicator:focus,
+.outer-text:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
+/* ==========================================================================
+   Loading Animation
+   ========================================================================== */
+.t2-preloader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100px;
+    font-size: 18px;
+    color: var(--primary-color);
+}
+
+.t2-preloader::after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--primary-color);
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    margin-left: 10px;
+    animation: spin 1s linear infinite;
+}
+
+/* ==========================================================================
+   Zoom Controls
+   ========================================================================== */
+.zoom-controls {
+    display: flex;
+    gap: 5px;
+}
+
+.zoom-controls button {
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    background: white;
+    cursor: pointer;
+    font-size: 12px;
+    font-family: 'Lato', sans-serif;
+}
+
+.zoom-controls button:hover {
+    background: #f0f0f0;
+}
+
+/* ==========================================================================
+   Settings Panel
+   ========================================================================== */
+   
+   /* Main Panel */
+.settings-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100vh;
+    background: white;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+    padding: 20px;
+    overflow-y: auto;
+    visibility: hidden;
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}
+
+.settings-panel.visible {
+    transform: translateX(0);
+    visibility: visible;
+}
+
+/* Responsive Panel Styles */
+.settings-panel-mobile {
+    width: 100% !important;
+    left: 0;
+    bottom: 0;
+    max-height: 90vh;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+.settings-panel-tablet {
+    width: 400px;
+}
+
+.settings-panel-scrollable {
+    overflow-y: auto;
+}
+
+/* Toggle Button */
+.settings-toggle {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    border: none;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    cursor: pointer;
+    z-index: 1001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: transform 0.2s ease;
+}
+
+.settings-toggle:hover {
+    transform: scale(1.1);
+}
+
+.settings-panel-mobile ~ .settings-toggle {
+    bottom: calc(90vh + 10px);
+    right: 10px;
+}
+
+/* Header Styles */
+.settings-header {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.settings-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.settings-title h2 {
+    margin: 0;
+    font-size: 1.2em;
+    color: #333;
+}
+
+/* Action Buttons */
+.settings-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.settings-btn {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background: #f0f0f0;
+    transition: all 0.2s ease;
+}
+
+.settings-btn:hover {
+    background: #e0e0e0;
+}
+
+/* Tabs */
+.settings-tab-list {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    -ms-overflow-style: none;
+}
+
+.settings-tab-list::-webkit-scrollbar {
+    height: 4px;
+}
+
+.settings-tab-list::-webkit-scrollbar-thumb {
+    background: #ddd;
+    border-radius: 2px;
+}
+
+.settings-tab {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background: #f0f0f0;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.settings-tab.active {
+    background: #007bff;
+    color: white;
+}
+
+.settings-tab:hover:not(.active) {
+    background: #e0e0e0;
+}
+
+/* Groups */
+.settings-group {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.settings-group-header {
+    margin-bottom: 15px;
+}
+
+.settings-group-header h3 {
+    margin: 0;
+    font-size: 1.1em;
+    color: #333;
+}
+
+/* Controls */
+.settings-control {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    padding: 5px 0;
+}
+
+.settings-control label {
+    font-size: 0.9em;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.settings-input-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 2px;
+}
+
+/* All input types styling */
+.settings-control input[type="number"],
+.settings-control input[type="text"],
+.settings-control select,
+.settings-input-wrapper input,
+.settings-input-wrapper select {
+    width: 80px;
+    padding: 6px 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9em;
+    transition: border-color 0.2s ease;
+}
+
+/* Focus states */
+.settings-control input[type="number"]:focus,
+.settings-control input[type="text"]:focus,
+.settings-control select:focus,
+.settings-input-wrapper input:focus,
+.settings-input-wrapper select:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+/* Checkbox specific styling */
+.settings-control input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+}
+
+/* Value Hints */
+.settings-value-hint {
+    font-size: 0.75em;
+    color: #666;
+    text-align: right;
+    margin-top: 2px;
+}
+
+
+/* Preview Mode */
+.settings-preview-badge {
+    position: fixed;
+    top: 20px;
+    right: 320px;
+    background: #007bff;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    z-index: 1001;
+    animation: fadeIn 0.3s ease;
+}
+
+.settings-preview-controls {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 300px;
+    padding: 15px;
+    background: white;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    z-index: 1002;
+}
+
+.settings-preview-controls .settings-btn {
+    flex: 1;
+    padding: 8px;
+}
+
+.settings-preview-controls .apply-preview {
+    background: #28a745;
+    color: white;
+}
+
+.settings-preview-controls .apply-preview:hover {
+    background: #218838;
+}
+
+.settings-preview-controls .cancel-preview {
+    background: #dc3545;
+    color: white;
+}
+
+.settings-preview-controls .cancel-preview:hover {
+    background: #c82333;
+}
+
+/* Notifications */
+.settings-notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    border-radius: 4px;
+    color: white;
+    z-index: 1002;
+    animation: fadeIn 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.settings-notification.success {
+    background: #28a745;
+}
+
+.settings-notification.error {
+    background: #dc3545;
+}
+
+.settings-notification.info {
+    background: #17a2b8;
+}
+
+/* Tooltips */
+.settings-tooltip {
+    position: relative;
+    display: inline-block;
+    margin-left: 5px;
+    cursor: help;
+}
+
+.settings-tooltip::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 5px 10px;
+    background: rgba(0,0,0,0.8);
+    color: white;
+    border-radius: 4px;
+    font-size: 0.8em;
+    white-space: nowrap;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 1003;
+}
+
+.settings-tooltip:hover::after {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+    .settings-panel {
+        padding: 15px;
+    }
+
+    .settings-preview-badge {
+        right: auto;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .settings-control {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .settings-control label {
+        margin-bottom: 5px;
+    }
+
+    .settings-control input[type="number"],
+    .settings-control input[type="text"],
+    .settings-control select {
+        width: 100%;
+    }
+
+    .settings-preview-controls {
+        width: 100%;
+    }
+}
+
+/* Custom Scrollbar for Webkit Browsers */
+.settings-panel::-webkit-scrollbar {
+    width: 8px;
+}
+
+.settings-panel::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.settings-panel::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.settings-panel::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+
+.settings-profile-controls {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-default);
+    background: var(--bg-subtle);
+    margin-bottom: 1rem;
+}
+
+.profile-header {
+    margin-bottom: 1rem;
+}
+
+.profile-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-default);
+}
+
+.profile-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.profile-input-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+#profile-name {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid var(--border-default);
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+#save-profile {
+    padding: 0.5rem 1rem;
+    background: var(--accent-primary);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+
+#save-profile:hover {
+    background: var(--accent-secondary);
+}
+
+.profile-status {
+    padding: 0.5rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.profile-status.success {
+    background: var(--success-bg);
+    color: var(--success-text);
+}
+
+.profile-status.error {
+    background: var(--error-bg);
+    color: var(--error-text);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .profile-input-group {
+        flex-direction: column;
+    }
+    
+    #save-profile {
+        width: 100%;
+    }
+}
